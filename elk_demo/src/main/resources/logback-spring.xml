@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <springProperty scope="context" name="applicationName" source="spring.application.name"/>
+    <springProperty scope="context" name="applicationPort" source="server.port"/>
+    <springProperty scope="context" name="logstash-host" source="elk.logstash.server"/>
+    <springProperty scope="context" name="logstash-port" source="elk.logstash.port"/>
+    <springProperty scope="context" name="elkEnabled" source="elk.enable"/>
+
+
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <if condition='property("elkEnabled").contains("true")'>
+        <then>
+            <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+                <param name="Encoding" value="UTF-8"/>
+                <destination>${logstash-host}:${logstash-port}</destination>
+                <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                    <customFields>{"app_name":"${applicationName}", "app_port": "${applicationPort}"}</customFields>
+                </encoder>
+            </appender>
+            <root level="info">
+                <appender-ref ref="Console"/>
+                <appender-ref ref="logstash"/>
+            </root>
+        </then>
+    </if>
+    <if condition='property("elkEnabled").contains("false")'>
+        <then>
+            <root level="info">
+                <appender-ref ref="Console"/>
+            </root>
+        </then>
+    </if>
+
+</configuration>

@@ -1,0 +1,15 @@
+server:
+  port: 8077
+
+spring:
+  application:
+    name: user-service
+
+elk:
+  enable: ${ELK_ENABLED:true}
+  logstash:
+    server: ${ELK_HOST:localhost}
+    port: ${ELK_PORT:5000}
+
+
+
